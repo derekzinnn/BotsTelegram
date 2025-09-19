@@ -134,13 +134,12 @@ async def send_new_submission_message():
 @app.route("/novo-formulario", methods=["POST"])
 def new_form_submission():
     try:
-        future = asyncio.run_coroutine_threadsafe(send_new_submission_message(), loop)
-        future.result()  # Captura erros da coroutine
+        asyncio.run_coroutine_threadsafe(send_new_submission_message(), loop)
         return "Notificação agendada com sucesso.", 200
-    except Exception:
-        print("[ERRO NO /novo-formulario]")
-        traceback.print_exc()
-        return "Erro interno no servidor.", 500
+    except Exception as e:
+        print(f"[ERRO] /novo-formulario: {e}")
+        return "Erro interno no servidor.", 500 
+
 
 @app.route("/webhook/<token>", methods=["POST"])
 def telegram_webhook(token):
