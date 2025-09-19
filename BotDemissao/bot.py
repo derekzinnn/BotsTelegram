@@ -121,12 +121,16 @@ def new_form_submission():
 @app.route("/webhook", methods=["POST"])
 def telegram_webhook():
     try:
+        # 👉 Loga o update recebido do Telegram
+        print("[UPDATE RECEBIDO]", request.json)
+
         update = Update.de_json(request.json, bot)
         asyncio.run_coroutine_threadsafe(handle_update(update), loop)
         return "OK", 200
     except Exception as e:
         print(f"[ERRO] /webhook: {e}")
         return "Erro interno no servidor.", 500
+
 
 #if __name__ == "__main__":
    # import os
