@@ -118,18 +118,19 @@ def new_form_submission():
         print(f"[ERRO] /novo-formulario: {e}")
         return "Erro interno no servidor.", 500
 
-@app.route("/webhook", methods=["POST"])
-def telegram_webhook():
+@app.route("/webhook/<token>", methods=["POST"])
+def telegram_webhook(token):
+    if token != TOKEN:  # segurança básica
+        return "Token inválido", 403
     try:
-        # 👉 Loga o update recebido do Telegram
         print("[UPDATE RECEBIDO]", request.json)
-
         update = Update.de_json(request.json, bot)
         asyncio.run_coroutine_threadsafe(handle_update(update), loop)
         return "OK", 200
     except Exception as e:
         print(f"[ERRO] /webhook: {e}")
         return "Erro interno no servidor.", 500
+
 
 
 #if __name__ == "__main__":
