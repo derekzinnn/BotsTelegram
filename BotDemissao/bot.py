@@ -5,7 +5,7 @@ import os; TOKEN = os.environ.get('token_bot_demissao')
 from flask import Flask, request
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Bot, Update
 from oauth2client.service_account import ServiceAccountCredentials
-from config import CREDS_FILE, SHEET_NAME
+from BotDemissao.config import CREDS_FILE, SHEET_NAME
 
 CHAT_ID = "-1002911704661"
 
