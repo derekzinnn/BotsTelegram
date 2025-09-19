@@ -117,6 +117,8 @@ async def handle_update(update: Update):
         traceback.print_exc()
 
 async def send_new_submission_message():
+    print("[DEBUG] TOKEN:", TOKEN)
+    print("[DEBUG] CHAT_ID:", CHAT_ID)
     texto_mensagem = f"*Novo Processo de Desligamento* 🚨\n\n{get_ultima_resposta_formatada()}"
     try:
         resp = await bot.send_message(
@@ -128,7 +130,9 @@ async def send_new_submission_message():
         print("[MENSAGEM ENVIADA]", resp)
     except Exception:
         print("[ERRO AO ENVIAR MENSAGEM]")
+        import traceback
         traceback.print_exc()
+
 
 # ----------------- Rotas Flask -----------------
 @app.route("/novo-formulario", methods=["POST"])
