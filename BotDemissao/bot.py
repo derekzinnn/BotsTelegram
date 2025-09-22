@@ -155,6 +155,7 @@ def new_form_submission():
         print(f"[ERRO] /novo-formulario: {e}")
         return "Erro interno no servidor.", 500
 
+
 @app.route("/webhook/<token>", methods=["POST"])
 def telegram_webhook(token):
     if token != TOKEN:
