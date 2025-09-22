@@ -161,11 +161,11 @@ def telegram_webhook(token):
     if token != TOKEN:
         return "Token inválido", 403
     try:
-        print("[UPDATE RECEBIDO]", request.json)
-        future = asyncio.run_coroutine_threadsafe(handle_update(Update.de_json(request.json, bot)), loop)
-        future.result()
+        update_data = Update.de_json(request.json, bot)
+        threading.Thread(target=lambda: asyncio.run(handle_update(update_data)), daemon=True).start()
         return "OK", 200
     except Exception:
         print("[ERRO NO /webhook]")
         traceback.print_exc()
         return "Erro interno no servidor.", 500
+
