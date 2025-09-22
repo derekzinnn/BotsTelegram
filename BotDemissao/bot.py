@@ -149,10 +149,14 @@ def send_new_submission_message_sync():
 
 def keep_alive():
     while True:
-        print("[KEEP-ALIVE] Bot ainda ativo")
-        time.sleep(60)
+        try:
+            print("[KEEP-ALIVE] Bot ainda ativo")
+            requests.get(RENDER_URL)
+        except Exception as e:
+            print("[ERRO NO KEEP-ALIVE]", e)
+        time.sleep(600) 
 
-    threading.Thread(target=send_message_thread, daemon=True).start()
+threading.Thread(target=keep_alive, daemon=True).start()
 
 @app.route("/novo-formulario", methods=["POST"])
 def new_form_submission():
