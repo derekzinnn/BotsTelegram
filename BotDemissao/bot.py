@@ -147,6 +147,11 @@ def send_new_submission_message_sync():
         print("[ERRO AO ENVIAR MENSAGEM]")
         traceback.print_exc()
 
+#Pingar para o Bot nao entrar em sleep.mode
+@app.route("/ping", methods=["GET"])
+def ping():
+    return "OK", 200
+
 @app.route("/novo-formulario", methods=["POST"])
 def new_form_submission():
     try:
