@@ -112,22 +112,23 @@ def build_menu_voltar():
     keyboard = [[InlineKeyboardButton("Voltar ao Menu ⬅️", callback_data="voltar_menu")]]
     return InlineKeyboardMarkup(keyboard)
 
-async def handle_update(update: Update):
-    if not update.callback_query: 
+def handle_update(update: Update):
+    if not update.callback_query:
         return
     query = update.callback_query
-    await query.answer()
-    
+
     try:
         if query.data == "ver_avisos":
             texto = get_funcionarios_em_aviso()
-            await query.edit_message_text(text=texto, reply_markup=build_menu_voltar(), parse_mode='Markdown')
+            query.edit_message_text(text=texto, reply_markup=build_menu_voltar(), parse_mode='Markdown')
         elif query.data == "ver_demissoes":
             texto = get_ultimas_demissoes_formatadas()
-            await query.edit_message_text(text=texto, reply_markup=build_menu_voltar(), parse_mode='Markdown')
+            query.edit_message_text(text=texto, reply_markup=build_menu_voltar(), parse_mode='Markdown')
         elif query.data == "voltar_menu":
             texto_original = f"*Novo Processo de Desligamento* 🚨\n\n{get_ultima_resposta_formatada()}"
-            await query.edit_message_text(text=texto_original, reply_markup=build_menu_principal(), parse_mode='Markdown')
+            query.edit_message_text(text=texto_original, reply_markup=build_menu_principal(), parse_mode='Markdown')
+
+        query.answer()
     except Exception:
         print("[ERRO NO HANDLE_UPDATE]")
         traceback.print_exc()
@@ -162,10 +163,11 @@ def telegram_webhook(token):
         return "Token inválido", 403
     try:
         update_data = Update.de_json(request.json, bot)
-        threading.Thread(target=lambda: asyncio.run(handle_update(update_data)), daemon=True).start()
+        threading.Thread(target=lambda: handle_update(update_data), daemon=True).start()
         return "OK", 200
     except Exception:
         print("[ERRO NO /webhook]")
         traceback.print_exc()
         return "Erro interno no servidor.", 500
+
 
