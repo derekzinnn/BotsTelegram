@@ -12,7 +12,7 @@ import traceback
 TOKEN = os.environ.get('TOKEN')
 CREDS_FILE = "creds.json"
 SHEET_NAME = os.environ['SHEET_NAME']
-CHAT_ID = "-1002911704661"
+CHAT_ID = "5592767305"
 
 with open(CREDS_FILE, 'w') as f:
     f.write(os.environ['CREDS_FILE'])
@@ -132,12 +132,10 @@ async def handle_update(update: Update):
         print("[ERRO NO HANDLE_UPDATE]")
         traceback.print_exc()
 
-async def send_new_submission_message():
-    print("[DEBUG] TOKEN:", TOKEN)
-    print("[DEBUG] CHAT_ID:", CHAT_ID)
+def send_new_submission_message_sync():
     texto_mensagem = f"*Novo Processo de Desligamento* 🚨\n\n{get_ultima_resposta_formatada()}"
     try:
-        resp = await bot.send_message(
+        resp = bot.send_message(
             chat_id=CHAT_ID,
             text=texto_mensagem,
             reply_markup=build_menu_principal(),
@@ -146,17 +144,16 @@ async def send_new_submission_message():
         print("[MENSAGEM ENVIADA]", resp)
     except Exception:
         print("[ERRO AO ENVIAR MENSAGEM]")
-        import traceback
         traceback.print_exc()
 
 @app.route("/novo-formulario", methods=["POST"])
 def new_form_submission():
     try:
-        asyncio.run_coroutine_threadsafe(send_new_submission_message(), loop)
+        threading.Thread(target=send_new_submission_message_sync).start()
         return "Notificação agendada com sucesso.", 200
     except Exception as e:
         print(f"[ERRO] /novo-formulario: {e}")
-        return "Erro interno no servidor.", 500 
+        return "Erro interno no servidor.", 500
 
 @app.route("/webhook/<token>", methods=["POST"])
 def telegram_webhook(token):
