@@ -2,25 +2,42 @@ import gspread
 import asyncio
 import threading
 import os
+import json
+import requests
 from flask import Flask, request
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Bot, Update
 from oauth2client.service_account import ServiceAccountCredentials
-from BotDemissao.config import CREDS_FILE, SHEET_NAME
 import traceback
 
-# ----------------- Configs -----------------
-TOKEN = os.environ.get('token_bot_demissao')
+TOKEN = os.environ.get('TOKEN')
+CREDS_FILE = "creds.json"
+SHEET_NAME = os.environ['SHEET_NAME']
 CHAT_ID = "-1002911704661"
 
-# ----------------- Loop Async -----------------
+with open(CREDS_FILE, 'w') as f:
+    f.write(os.environ['CREDS_FILE'])
+
 loop = asyncio.new_event_loop()
 threading.Thread(target=loop.run_forever, daemon=True).start()
 
-# ----------------- Flask e Bot -----------------
 app = Flask(__name__)
 bot = Bot(token=TOKEN)
 
-# ----------------- Funções Utilitárias -----------------
+RENDER_URL = os.environ['RENDER_URL']
+WEBHOOK_URL = f"{RENDER_URL}/webhook/{TOKEN}"
+
+def set_telegram_webhook():
+    try:
+        resp = requests.get(f"https://api.telegram.org/bot{TOKEN}/setWebhook?url={WEBHOOK_URL}")
+        if resp.status_code == 200:
+            print("[WEBHOOK CONFIGURADO COM SUCESSO]")
+        else:
+            print(f"[ERRO AO CONFIGURAR WEBHOOK] Status: {resp.status_code}, {resp.text}")
+    except Exception as e:
+        print(f"[ERRO AO CONFIGURAR WEBHOOK]: {e}")
+
+set_telegram_webhook()
+
 def get_emoji_motivo(motivo):
     motivo = motivo.strip().lower()
     if "pedido de demissão" in motivo:
@@ -95,7 +112,6 @@ def build_menu_voltar():
     keyboard = [[InlineKeyboardButton("Voltar ao Menu ⬅️", callback_data="voltar_menu")]]
     return InlineKeyboardMarkup(keyboard)
 
-# ----------------- Handlers Async -----------------
 async def handle_update(update: Update):
     if not update.callback_query: 
         return
@@ -133,8 +149,6 @@ async def send_new_submission_message():
         import traceback
         traceback.print_exc()
 
-
-# ----------------- Rotas Flask -----------------
 @app.route("/novo-formulario", methods=["POST"])
 def new_form_submission():
     try:
@@ -143,7 +157,6 @@ def new_form_submission():
     except Exception as e:
         print(f"[ERRO] /novo-formulario: {e}")
         return "Erro interno no servidor.", 500 
-
 
 @app.route("/webhook/<token>", methods=["POST"])
 def telegram_webhook(token):
@@ -158,6 +171,3 @@ def telegram_webhook(token):
         print("[ERRO NO /webhook]")
         traceback.print_exc()
         return "Erro interno no servidor.", 500
-
-# ----------------- Fim do arquivo -----------------
-# Não precisa de app.run() no Render; Gunicorn vai iniciar
