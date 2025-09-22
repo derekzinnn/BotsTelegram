@@ -152,6 +152,8 @@ def keep_alive():
         print("[KEEP-ALIVE] Bot ainda ativo")
         time.sleep(60)
 
+    threading.Thread(target=send_message_thread, daemon=True).start()
+
 @app.route("/novo-formulario", methods=["POST"])
 def new_form_submission():
     try:
