@@ -2,7 +2,7 @@ import gspread
 import asyncio
 import threading
 import os
-import json
+import time
 import requests
 from flask import Flask, request
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Bot, Update
@@ -147,10 +147,10 @@ def send_new_submission_message_sync():
         print("[ERRO AO ENVIAR MENSAGEM]")
         traceback.print_exc()
 
-#Pingar para o Bot nao entrar em sleep.mode
-@app.route("/ping", methods=["GET"])
-def ping():
-    return "OK", 200
+def keep_alive():
+    while True:
+        print("[KEEP-ALIVE] Bot ainda ativo")
+        time.sleep(60)
 
 @app.route("/novo-formulario", methods=["POST"])
 def new_form_submission():
